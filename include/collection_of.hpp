@@ -35,9 +35,11 @@ class CollectionOf {
   CollectionOf(const CollectionOf&) = delete;
   CollectionOf& operator=(const CollectionOf&) = delete;
   ~CollectionOf() {
+    for (size_type i = 0; i < n; ++i) {
+      ptr[i].~T();
+    }
     d_(ptr_, length_);
   }
-
 
   // Element access
 
@@ -110,7 +112,7 @@ class CollectionOf {
 
   //  Operations
   template <typename... Args>
-  void fill(Args&&... args) {
+  void construct(Args&&... args) {
     for (size_type i = 0; i < length_; ++i) {
       ::new (ptr_ + i) T(std::forward<Args>(args)...);
     }
@@ -125,9 +127,6 @@ class CollectionOf {
   struct Deleter {
     explicit Deleter(const allocator_type& alloc) : alloc(alloc) {}
     void operator()(T* ptr, size_type n) {
-      for (size_type i = 0; i < n; ++i) {
-        ptr[i].~T();
-      }
       alloc.deallocate(ptr, n);
     }
     Alloc alloc{};

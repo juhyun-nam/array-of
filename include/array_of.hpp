@@ -39,10 +39,20 @@ class ArrayOf {
 
   ArrayOf(const ArrayOf&) = delete;
   ArrayOf& operator=(const ArrayOf&) = delete;
+  ArrayOf(ArrayOf&& other) {
+    std::swap(length_, other.length_)
+    std::swap(ptr_, other.ptr_)
+    d_ = Deleter(other.d_.alloc);
+  }
+  ArrayOf& operator=(ArrayOf&&) {
+    std::swap(length_, other.length_)
+    std::swap(ptr_, other.ptr_)
+    d_ = Deleter(other.d_.alloc);
+    return *this;
+  }
   ~ArrayOf() {
     d_(ptr_, length_);
   }
-
 
   // Element access
 
@@ -130,12 +140,12 @@ class ArrayOf {
   struct Deleter {
     explicit Deleter(const allocator_type& alloc) : alloc(alloc) {}
     void operator()(T* ptr, size_type n) {
-      alloc.deallocate(ptr, n);
+      if (ptr) alloc.deallocate(ptr, n);
     }
     Alloc alloc{};
   };
 
-  size_type length_;
+  size_type length_{};
   T* ptr_{};
   Deleter d_;
 };
