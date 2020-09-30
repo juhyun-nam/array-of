@@ -16,6 +16,7 @@ C++11 required
 
 
 # Run test
+#do it in the cmd 
 mkdir build && cd build
 cmake ..
 cmake --build .
